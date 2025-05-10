@@ -1,0 +1,47 @@
+/* Estilo general de la barra de navegación */
+.navbar {
+  background-color: #333;  /* Color de fondo oscuro */
+  padding: 10px 20px;      /* Espaciado alrededor de los elementos */
+  display: flex;           /* Usar flexbox para organizar los elementos */
+  justify-content: space-between;  /* Alinear los elementos a los extremos */
+  align-items: center;     /* Alinear los elementos verticalmente */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra sutil para la navbar */
+}
+
+.navbar a {
+  color: #fff;             /* Color blanco para los enlaces */
+  text-decoration: none;   /* Eliminar el subrayado de los enlaces */
+  font-size: 16px;         /* Tamaño de fuente */
+  margin: 0 15px;          /* Espaciado entre los enlaces */
+  padding: 10px 15px;      /* Espaciado dentro de los enlaces */
+  border-radius: 5px;      /* Bordes redondeados para los enlaces */
+  transition: background-color 0.3s ease;  /* Transición suave al pasar el mouse */
+}
+
+/* Efecto de hover para los enlaces */
+.navbar a:hover {
+  background-color: #575757; /* Fondo más claro cuando el mouse pasa sobre el enlace */
+  border-radius: 5px;        /* Mantener los bordes redondeados */
+}
+
+/* Estilo para el logotipo */
+.navbar .logo {
+  font-size: 24px;           /* Tamaño de la fuente para el logo */
+  color: #fff;               /* Color blanco */
+  font-weight: bold;         /* Negrita para el logo */
+  text-transform: uppercase; /* Poner el texto en mayúsculas */
+  letter-spacing: 2px;       /* Espaciado entre las letras */
+}
+
+/* Estilo responsivo para pantallas pequeñas (como teléfonos) */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;  /* Los elementos se alinean verticalmente */
+    text-align: center;      /* Centrar el texto */
+  }
+
+  .navbar a {
+    margin: 10px 0;          /* Espaciado vertical para los enlaces */
+    padding: 8px 15px;       /* Menos espacio dentro de los enlaces */
+  }
+}
