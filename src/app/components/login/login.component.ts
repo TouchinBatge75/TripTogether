@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +16,7 @@ export class LoginComponent {
   private auth = inject(Auth);
   private fb = inject(FormBuilder);
   private platformId = inject(PLATFORM_ID);
+  private router = inject(Router);
 
   loginForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
@@ -27,7 +28,6 @@ export class LoginComponent {
 
   async onSubmit() {
     if (!isPlatformBrowser(this.platformId)) {
-      // No ejecutar Auth en servidor
       this.errorMessage = 'Esta funcionalidad no está disponible en el servidor.';
       this.successMessage = '';
       return;
@@ -45,6 +45,8 @@ export class LoginComponent {
       await signInWithEmailAndPassword(this.auth, email!, password!);
       this.successMessage = 'Login exitoso';
       this.errorMessage = '';
+      // Redirige a dashboard o ruta que quieras
+      this.router.navigate(['/dashboard']);
     } catch (error: any) {
       this.errorMessage = error.message || 'Error en login';
       this.successMessage = '';
