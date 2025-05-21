@@ -1,0 +1,22 @@
+ <h1 style="text-align:center;">TripTogether - Registro</h1>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <input type="text" placeholder="Nombre" formControlName="name" />
+      <div *ngIf="registerForm.get('name')?.invalid && registerForm.get('name')?.touched" style="color:red">
+        El nombre es requerido.
+      </div>
+
+      <input type="email" placeholder="Correo" formControlName="email" />
+      <div *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched" style="color:red">
+        Correo inválido.
+      </div>
+
+      <input type="password" placeholder="Contraseña" formControlName="password" />
+      <div *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched" style="color:red">
+        La contraseña debe tener al menos 6 caracteres.
+      </div>
+
+      <button type="submit" [disabled]="registerForm.invalid">Registrarse</button>
+    </form>
+
+    <p *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</p>
+    <p *ngIf="successMessage" style="color: green;">{{ successMessage }}</p>

@@ -1,0 +1,80 @@
+/* register.component.scss */
+
+:host {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #f5f7fa;
+  font-family: Arial, sans-serif;
+}
+
+.register-container {
+  background: white;
+  padding: 2rem 3rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 350px;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+  font-weight: 600;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+input {
+  padding: 0.8rem 1rem;
+  margin-bottom: 1rem;
+  border: 1.5px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px #4a90e2;
+}
+
+button {
+  background-color: #4a90e2;
+  color: white;
+  padding: 0.9rem 0;
+  border: none;
+  border-radius: 5px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:disabled {
+  background-color: #a3c0f9;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background-color: #357abd;
+}
+
+.error-message {
+  color: #e74c3c;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.success-message {
+  color: #27ae60;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  text-align: center;
+}

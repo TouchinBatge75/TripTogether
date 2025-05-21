@@ -29,6 +29,13 @@
     </button>
   </form>
 
+  <p style="margin-top: 16px;">
+    ¿No tienes cuenta? 
+    <a routerLink="/register" style="color: #007bff; cursor: pointer; text-decoration: underline;">
+      Regístrate aquí
+    </a>
+  </p>
+
   <p *ngIf="errorMessage" style="color: red; margin-top: 12px;">{{ errorMessage }}</p>
   <p *ngIf="successMessage" style="color: green; margin-top: 12px;">{{ successMessage }}</p>
 </div>
