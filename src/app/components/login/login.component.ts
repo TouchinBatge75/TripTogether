@@ -1,39 +1,51 @@
+import { Component, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { Auth, signInWithEmailAndPassword } from '@angular/fire/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  styleUrls: ['./login.component.css'],
 })
 export class LoginComponent {
-  loginForm;
+  private auth = inject(Auth);
+  private fb = inject(FormBuilder);
+  private platformId = inject(PLATFORM_ID);
+
+  loginForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    password: ['', Validators.required],
+  });
 
   errorMessage = '';
   successMessage = '';
 
-  constructor(private fb: FormBuilder, private afAuth: AngularFireAuth) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required],
-    });
-  }
-  
   async onSubmit() {
-    if (this.loginForm.invalid) return;
+    if (!isPlatformBrowser(this.platformId)) {
+      // No ejecutar Auth en servidor
+      this.errorMessage = 'Esta funcionalidad no está disponible en el servidor.';
+      this.successMessage = '';
+      return;
+    }
+
+    if (this.loginForm.invalid) {
+      this.errorMessage = 'Por favor completa el formulario correctamente.';
+      this.successMessage = '';
+      return;
+    }
 
     const { email, password } = this.loginForm.value;
 
     try {
-      await this.afAuth.signInWithEmailAndPassword(email!, password!);
+      await signInWithEmailAndPassword(this.auth, email!, password!);
       this.successMessage = 'Login exitoso';
       this.errorMessage = '';
     } catch (error: any) {
-      this.errorMessage = error.message;
+      this.errorMessage = error.message || 'Error en login';
       this.successMessage = '';
     }
   }

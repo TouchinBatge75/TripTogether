@@ -1,23 +1,34 @@
-<div class="login-container">
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <h2>Iniciar sesión</h2>
-
-    <label for="email">Correo electrónico</label>
-    <input id="email" type="email" formControlName="email" placeholder="ejemplo@correo.com" />
-    <div class="error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
-      <small *ngIf="loginForm.get('email')?.errors?.['required']">El correo es requerido.</small>
-      <small *ngIf="loginForm.get('email')?.errors?.['email']">Ingresa un correo válido.</small>
+<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: Arial, sans-serif;">
+  <h1 style="margin-bottom: 24px;">TripTogether</h1>
+  
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" style="width: 300px; display: flex; flex-direction: column; gap: 12px;">
+    <input
+      type="email"
+      placeholder="Correo"
+      formControlName="email"
+      autocomplete="email"
+      style="padding: 8px; font-size: 16px;"
+    />
+    <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" style="color:red; font-size: 14px;">
+      Correo inválido
     </div>
 
-    <label for="password">Contraseña</label>
-    <input id="password" type="password" formControlName="password" placeholder="Contraseña" />
-    <div class="error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-      <small>La contraseña es requerida.</small>
+    <input
+      type="password"
+      placeholder="Contraseña"
+      formControlName="password"
+      autocomplete="current-password"
+      style="padding: 8px; font-size: 16px;"
+    />
+    <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" style="color:red; font-size: 14px;">
+      Contraseña requerida
     </div>
 
-    <button type="submit" [disabled]="loginForm.invalid">Entrar</button>
-
-    <div class="success" *ngIf="successMessage">{{ successMessage }}</div>
-    <div class="error" *ngIf="errorMessage">{{ errorMessage }}</div>
+    <button type="submit" [disabled]="loginForm.invalid" style="padding: 10px; font-size: 16px; cursor: pointer;">
+      Entrar
+    </button>
   </form>
+
+  <p *ngIf="errorMessage" style="color: red; margin-top: 12px;">{{ errorMessage }}</p>
+  <p *ngIf="successMessage" style="color: green; margin-top: 12px;">{{ successMessage }}</p>
 </div>
