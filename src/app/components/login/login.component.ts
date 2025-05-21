@@ -45,8 +45,8 @@ export class LoginComponent {
       await signInWithEmailAndPassword(this.auth, email!, password!);
       this.successMessage = 'Login exitoso';
       this.errorMessage = '';
-      // Redirige a dashboard o ruta que quieras
-      this.router.navigate(['/dashboard']);
+      // Redirige a dashboard después del login exitoso
+      this.router.navigate(['/home']);
     } catch (error: any) {
       this.errorMessage = error.message || 'Error en login';
       this.successMessage = '';
