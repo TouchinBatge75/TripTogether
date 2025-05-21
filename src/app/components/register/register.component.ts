@@ -1,7 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
+import { AuthService } from '../../services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -11,17 +12,37 @@ import { Auth, createUserWithEmailAndPassword } from '@angular/fire/auth';
   styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent {
-  private auth = inject(Auth);
+  private authService = inject(AuthService);
   private fb = inject(FormBuilder);
+  private router = inject(Router);
+
+  showPassword = false;
+  errorMessage = '';
+  successMessage = '';
 
   registerForm = this.fb.group({
     name: ['', Validators.required],
+    lastName: ['', Validators.required],
+    birthdate: ['', Validators.required],
+    gender: ['', Validators.required],
+    hasDisability: [false],
+    disabilityType: [''],
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
-  errorMessage = '';
-  successMessage = '';
+  onDisabilityChange(hasDisability: boolean) {
+    this.registerForm.patchValue({ disabilityType: '' });
+  }
+
+  toggleShowPassword() {
+    this.showPassword = !this.showPassword;
+  }
+
+  isPasswordStrong(password: string): boolean {
+    const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+    return strongPasswordRegex.test(password);
+  }
 
   async onSubmit() {
     if (this.registerForm.invalid) {
@@ -30,15 +51,42 @@ export class RegisterComponent {
       return;
     }
 
-const email = this.registerForm.get('email')?.value ?? '';
-const password = this.registerForm.get('password')?.value ?? '';
+    const {
+      name = '',
+      lastName = '',
+      birthdate = '',
+      gender = '',
+      hasDisability = false,
+      disabilityType = '',
+      email = '',
+      password = '',
+    } = this.registerForm.value;
 
+    const emailStr = email ?? '';
+    const passwordStr = password ?? '';
+
+    if (!this.isPasswordStrong(passwordStr)) {
+      this.errorMessage =
+        'La contraseña debe tener al menos 6 caracteres, incluir mayúsculas, minúsculas y números.';
+      this.successMessage = '';
+      return;
+    }
 
     try {
-      await createUserWithEmailAndPassword(this.auth, email!, password!);
+      await this.authService.register(emailStr, passwordStr, {
+        name,
+        lastName,
+        birthdate,
+        gender,
+        hasDisability,
+        disabilityType,
+      });
       this.successMessage = 'Registro exitoso';
       this.errorMessage = '';
       this.registerForm.reset();
+
+      // Redirigir a login después del registro exitoso
+      this.router.navigate(['/login']);
     } catch (error: any) {
       this.errorMessage = error.message || 'Error en registro';
       this.successMessage = '';

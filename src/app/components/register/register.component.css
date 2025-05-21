@@ -1,80 +1,95 @@
-/* register.component.scss */
-
-:host {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #f5f7fa;
+form {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 24px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fafafa;
   font-family: Arial, sans-serif;
 }
 
-.register-container {
-  background: white;
-  padding: 2rem 3rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  width: 350px;
+div {
+  margin-bottom: 16px;
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 1.5rem;
+label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
   color: #333;
-  font-weight: 600;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-size: 14px;
+  transition: border-color 0.3s;
 }
 
-input {
-  padding: 0.8rem 1rem;
-  margin-bottom: 1rem;
-  border: 1.5px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-}
-
-input:focus {
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="date"]:focus,
+select:focus {
+  border-color: #007bff;
   outline: none;
-  border-color: #4a90e2;
-  box-shadow: 0 0 5px #4a90e2;
 }
 
-button {
-  background-color: #4a90e2;
-  color: white;
-  padding: 0.9rem 0;
+button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
   border: none;
-  border-radius: 5px;
-  font-weight: 600;
-  font-size: 1rem;
+  border-radius: 4px;
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s;
 }
 
-button:disabled {
-  background-color: #a3c0f9;
-  cursor: not-allowed;
+button[type="submit"]:hover {
+  background-color: #0056b3;
 }
 
-button:hover:not(:disabled) {
-  background-color: #357abd;
+button[type="button"] {
+  padding: 6px 12px;
+  background-color: #6c757d;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.error-message {
-  color: #e74c3c;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  text-align: center;
+button[type="button"]:hover {
+  background-color: #5a6268;
 }
 
-.success-message {
-  color: #27ae60;
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-  text-align: center;
+input[type="checkbox"] {
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+div[style*="color: red"] {
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+div[style*="color: gray"] {
+  font-size: 13px;
+  font-style: italic;
+}
+
+div[style*="color: green"] {
+  font-size: 14px;
+  font-weight: bold;
 }
