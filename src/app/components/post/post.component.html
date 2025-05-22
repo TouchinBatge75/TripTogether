@@ -1,1 +1,40 @@
-<p>post works!</p>
+<h2>Publicar viaje</h2>
+
+<form [formGroup]="viajeForm" (ngSubmit)="publicarViaje()">
+  <label>Origen:
+    <input type="text" formControlName="origen">
+  </label>
+  <div *ngIf="viajeForm.get('origen')?.invalid && viajeForm.get('origen')?.touched">Requerido</div>
+
+  <label>Destino:
+    <input type="text" formControlName="destino">
+  </label>
+  <div *ngIf="viajeForm.get('destino')?.invalid && viajeForm.get('destino')?.touched">Requerido</div>
+
+  <label>Fecha:
+    <input type="date" formControlName="fecha">
+  </label>
+
+  <label>Hora:
+    <input type="time" formControlName="hora">
+  </label>
+
+  <label>Asientos disponibles:
+    <input type="number" formControlName="asientosDisponibles" min="1">
+  </label>
+
+  <label>Costo por persona ($):
+    <input type="number" formControlName="costoPorPersona" min="1">
+  </label>
+
+  <label>Notas adicionales:
+    <textarea formControlName="notas"></textarea>
+  </label>
+
+  <button type="submit">Publicar</button>
+</form>
+
+<div *ngIf="viajePublicado" class="confirmacion">
+  <h3>¡Viaje publicado con éxito!</h3>
+  <pre>{{ viajeData | json }}</pre>
+</div>

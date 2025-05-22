@@ -1,0 +1,26 @@
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-width: 400px;
+}
+
+input, textarea {
+  padding: 0.4rem;
+  font-size: 1rem;
+}
+
+button {
+  padding: 0.5rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.confirmacion {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #e8ffe8;
+  border: 1px solid #28a745;
+}
