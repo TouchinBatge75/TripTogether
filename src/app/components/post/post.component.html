@@ -1,40 +1,80 @@
-<h2>Publicar viaje</h2>
+<h2>Publicar Viaje Compartido</h2>
 
-<form [formGroup]="viajeForm" (ngSubmit)="publicarViaje()">
-  <label>Origen:
-    <input type="text" formControlName="origen">
-  </label>
-  <div *ngIf="viajeForm.get('origen')?.invalid && viajeForm.get('origen')?.touched">Requerido</div>
+<form (ngSubmit)="publicarViaje()" #viajeForm="ngForm">
+  <label for="origen">Origen:</label>
+  <input
+    id="origen"
+    type="text"
+    [(ngModel)]="direccionOrigen"
+    name="direccionOrigen"
+    (input)="buscarCoordsOrigen()"
+    required
+    minlength="3"
+  />
+  <br />
 
-  <label>Destino:
-    <input type="text" formControlName="destino">
-  </label>
-  <div *ngIf="viajeForm.get('destino')?.invalid && viajeForm.get('destino')?.touched">Requerido</div>
+  <label for="destino">Destino:</label>
+  <input
+    id="destino"
+    type="text"
+    [(ngModel)]="direccionDestino"
+    name="direccionDestino"
+    (input)="buscarCoordsDestino()"
+    required
+    minlength="3"
+  />
+  <br />
 
-  <label>Fecha:
-    <input type="date" formControlName="fecha">
-  </label>
+  <label for="fechaHora">Fecha y hora:</label>
+  <input
+    id="fechaHora"
+    type="datetime-local"
+    [(ngModel)]="fechaHora"
+    name="fechaHora"
+    required
+  />
+  <br />
 
-  <label>Hora:
-    <input type="time" formControlName="hora">
-  </label>
+  <label for="precio">Precio por pasajero:</label>
+  <input
+    id="precio"
+    type="number"
+    [(ngModel)]="precio"
+    name="precio"
+    min="0"
+    required
+  />
+  <br />
 
-  <label>Asientos disponibles:
-    <input type="number" formControlName="asientosDisponibles" min="1">
-  </label>
+  <label for="pasajerosDisponibles">Número de pasajeros disponibles:</label>
+  <input
+    id="pasajerosDisponibles"
+    type="number"
+    [(ngModel)]="pasajerosDisponibles"
+    name="pasajerosDisponibles"
+    min="1"
+    required
+  />
+  <br />
 
-  <label>Costo por persona ($):
-    <input type="number" formControlName="costoPorPersona" min="1">
-  </label>
-
-  <label>Notas adicionales:
-    <textarea formControlName="notas"></textarea>
-  </label>
-
-  <button type="submit">Publicar</button>
+  <button type="submit" [disabled]="viajeForm.invalid">Publicar Viaje</button>
 </form>
 
-<div *ngIf="viajePublicado" class="confirmacion">
-  <h3>¡Viaje publicado con éxito!</h3>
-  <pre>{{ viajeData | json }}</pre>
-</div>
+<!-- Mapa mostrando origen y destino -->
+<app-map
+  [ubicacionActual]="coordsOrigen"
+  [ubicacionDestino]="coordsDestino"
+></app-map>
+
+<hr />
+
+<h3>Viajes publicados</h3>
+<ul>
+  <li *ngFor="let viaje of viajesPublicados">
+    <strong>{{ viaje.direccionOrigen }}</strong> →
+    <strong>{{ viaje.direccionDestino }}</strong> |
+    Fecha: {{ viaje.fechaHora | date: 'short' }} |
+    Precio: {{ viaje.precio | currency: 'USD' }} |
+    Pasajeros: {{ viaje.pasajerosDisponibles }}
+  </li>
+</ul>
