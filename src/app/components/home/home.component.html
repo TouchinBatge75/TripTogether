@@ -1,30 +1,49 @@
-<h2>Buscar Viaje</h2>
+<app-map
+  [ubicacionActual]="ubicacionActual"
+  [ubicacionDestino]="ubicacionDestino">
+</app-map>
 
-<button (click)="toggleFormulario()">
-  {{ mostrarFormulario ? 'Ocultar Formulario' : 'Buscar Viaje' }}
-</button>
+<div class="container">
+  <button (click)="toggleFormulario()">
+    {{ mostrarFormulario ? 'Cerrar formulario' : 'Abrir formulario' }}
+  </button>
 
-<div *ngIf="mostrarFormulario">
-  <form (ngSubmit)="calcularPrecio()" #formBuscar="ngForm">
-    <label for="destino">Dirección destino:</label>
-    <input
-      type="text"
-      id="destino"
-      name="destino"
-      [(ngModel)]="direccionDestino"
-      required
-      placeholder="Ej. París, Nueva York"
-    />
-    <button type="submit" [disabled]="!formBuscar.form.valid">Calcular precio</button>
+  <form *ngIf="mostrarFormulario" (submit)="$event.preventDefault()">
+    <label>
+      Dirección destino:
+      <input type="text"
+             [(ngModel)]="direccionDestino"
+             (input)="buscarSugerencias()"
+             (blur)="ocultarSugerencias()"
+             name="direccion"
+             autocomplete="off" />
+    </label>
+
+    <ul *ngIf="mostrarSugerencias" class="sugerencias-lista">
+      <li *ngFor="let sug of sugerencias" (click)="seleccionarSugerencia(sug)">
+        {{ sug.display_name }}
+      </li>
+    </ul>
+
+    <label>
+      Número de pasajeros:
+      <input type="number" min="1" max="10" [(ngModel)]="numeroPasajeros" name="pasajeros" />
+    </label>
+
+    <label>
+      Tipo de pago:
+      <select [(ngModel)]="tipoPago" name="tipoPago">
+        <option value="efectivo">Efectivo</option>
+        <option value="tarjeta">Tarjeta</option>
+      </select>
+    </label>
+
+    <button (click)="calcularPrecio()" type="button">Calcular precio</button>
   </form>
 
-  <div *ngIf="precio !== null">
-    <h3>Precio estimado: {{ precio | currency:'USD' }}</h3>
-  </div>
+  <div *ngIf="error" class="error">{{ error }}</div>
 
-  <div *ngIf="error" style="color: red;">
-    {{ error }}
+  <div *ngIf="precio !== null" class="precio-resultado">
+    Precio estimado: <strong>${{ precio }}</strong>
   </div>
 </div>
-
-<app-map [ubicacionActual]="ubicacionActual" [ubicacionDestino]="ubicacionDestino"></app-map>
