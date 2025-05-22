@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MapComponent } from '../map/map.component';
-
-// Importa los servicios
 import { ViajeService } from '../../services/travel.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -28,38 +26,31 @@ export class PostComponent implements OnInit {
 
   constructor(
     private viajeService: ViajeService,
-    private authService: AuthService // Inyectar servicio Auth
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
     this.cargarViajes();
   }
 
-  async cargarViajes() {
+  cargarViajes() {
     this.viajeService.obtenerViajes().subscribe(viajes => {
       this.viajesPublicados = viajes;
     });
   }
 
   async buscarCoordsOrigen() {
-    if (this.direccionOrigen.length < 3) {
-      this.coordsOrigen = null;
-      return;
-    }
-    this.coordsOrigen = await this.getCoordsFromAddress(this.direccionOrigen);
+    this.coordsOrigen = await this.buscarCoordenadas(this.direccionOrigen);
   }
 
   async buscarCoordsDestino() {
-    if (this.direccionDestino.length < 3) {
-      this.coordsDestino = null;
-      return;
-    }
-    this.coordsDestino = await this.getCoordsFromAddress(this.direccionDestino);
+    this.coordsDestino = await this.buscarCoordenadas(this.direccionDestino);
   }
 
-  async getCoordsFromAddress(address: string): Promise<{ latitude: number; longitude: number } | null> {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`;
+  private async buscarCoordenadas(direccion: string): Promise<{ latitude: number; longitude: number } | null> {
+    if (direccion.length < 3) return null;
 
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`;
     try {
       const response = await fetch(url, {
         headers: {
@@ -67,28 +58,25 @@ export class PostComponent implements OnInit {
           'User-Agent': 'TuApp/1.0 (contacto@tudominio.com)'
         }
       });
-      if (!response.ok) {
-        return null;
-      }
       const data = await response.json();
-      if (data.length === 0) {
-        return null;
-      }
+      if (!data.length) return null;
       return {
         latitude: parseFloat(data[0].lat),
         longitude: parseFloat(data[0].lon)
       };
-    } catch {
+    } catch (error) {
+      console.error('Error buscando coordenadas:', error);
       return null;
     }
   }
 
   async publicarViaje() {
     if (!this.coordsOrigen || !this.coordsDestino) {
-      alert('Por favor, ingresa direcciones válidas de origen y destino.');
+      alert('Por favor, ingresa direcciones válidas.');
       return;
     }
-    if (!this.fechaHora || !this.precio || !this.pasajerosDisponibles) {
+
+    if (!this.fechaHora || this.precio == null || !this.pasajerosDisponibles) {
       alert('Por favor, completa todos los campos.');
       return;
     }
@@ -107,25 +95,27 @@ export class PostComponent implements OnInit {
       pasajerosDisponibles: this.pasajerosDisponibles,
       coordsOrigen: this.coordsOrigen,
       coordsDestino: this.coordsDestino,
-      usuarioId: usuarioActual.uid,       // Agrega el UID del usuario
-      usuarioEmail: usuarioActual.email   // Opcional: el email del usuario
+      usuarioId: usuarioActual.uid,
+      usuarioEmail: usuarioActual.email
     };
 
     try {
-      await this.viajeService.publicarViaje(viaje);
+      await this.viajeService.publicarViaje(viaje, usuarioActual.uid);
       alert('Viaje publicado con éxito!');
-
-      // Limpiar formulario
-      this.direccionOrigen = '';
-      this.direccionDestino = '';
-      this.fechaHora = '';
-      this.precio = null;
-      this.pasajerosDisponibles = 1;
-      this.coordsOrigen = null;
-      this.coordsDestino = null;
+      this.reiniciarFormulario();
     } catch (error) {
       console.error('Error al publicar viaje:', error);
-      alert('Hubo un error al publicar el viaje. Intenta de nuevo.');
+      alert('Hubo un error al publicar el viaje.');
     }
+  }
+
+  private reiniciarFormulario() {
+    this.direccionOrigen = '';
+    this.direccionDestino = '';
+    this.fechaHora = '';
+    this.precio = null;
+    this.pasajerosDisponibles = 1;
+    this.coordsOrigen = null;
+    this.coordsDestino = null;
   }
 }

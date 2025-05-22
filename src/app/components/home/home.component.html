@@ -1,49 +1,89 @@
 <app-map
   [ubicacionActual]="ubicacionActual"
-  [ubicacionDestino]="ubicacionDestino">
-</app-map>
+  [ubicacionDestino]="ubicacionDestino"
+></app-map>
 
-<div class="container">
+<div class="home-container">
   <button (click)="toggleFormulario()">
-    {{ mostrarFormulario ? 'Cerrar formulario' : 'Abrir formulario' }}
+    {{ mostrarFormulario ? 'Cancelar' : 'Publicar nuevo viaje' }}
   </button>
 
-  <form *ngIf="mostrarFormulario" (submit)="$event.preventDefault()">
+  <!-- Formulario para publicar viaje -->
+  <div *ngIf="mostrarFormulario" class="formulario-viaje">
     <label>
       Dirección destino:
-      <input type="text"
-             [(ngModel)]="direccionDestino"
-             (input)="buscarSugerencias()"
-             (blur)="ocultarSugerencias()"
-             name="direccion"
-             autocomplete="off" />
+      <input
+        type="text"
+        [(ngModel)]="direccionDestino"
+        (input)="buscarSugerencias()"
+        (blur)="ocultarSugerencias()"
+        autocomplete="off"
+      />
     </label>
 
+    <!-- Sugerencias de autocompletado -->
     <ul *ngIf="mostrarSugerencias" class="sugerencias-lista">
-      <li *ngFor="let sug of sugerencias" (click)="seleccionarSugerencia(sug)">
-        {{ sug.display_name }}
+      <li
+        *ngFor="let sugerencia of sugerencias"
+        (mousedown)="seleccionarSugerencia(sugerencia)"
+      >
+        {{ sugerencia.display_name }}
       </li>
     </ul>
 
     <label>
       Número de pasajeros:
-      <input type="number" min="1" max="10" [(ngModel)]="numeroPasajeros" name="pasajeros" />
+      <input
+        type="number"
+        [(ngModel)]="numeroPasajeros"
+        min="1"
+      />
     </label>
 
     <label>
       Tipo de pago:
-      <select [(ngModel)]="tipoPago" name="tipoPago">
+      <select [(ngModel)]="tipoPago">
         <option value="efectivo">Efectivo</option>
         <option value="tarjeta">Tarjeta</option>
       </select>
     </label>
 
-    <button (click)="calcularPrecio()" type="button">Calcular precio</button>
-  </form>
+    <button (click)="calcularPrecio()">Calcular precio</button>
 
-  <div *ngIf="error" class="error">{{ error }}</div>
+    <div *ngIf="precio !== null" class="precio-calculado">
+      Precio estimado: ${{ precio }}
+    </div>
 
-  <div *ngIf="precio !== null" class="precio-resultado">
-    Precio estimado: <strong>${{ precio }}</strong>
+    <div *ngIf="error" class="error-mensaje">
+      {{ error }}
+    </div>
+
+    <button (click)="publicarViaje()">Publicar viaje</button>
+  </div>
+
+  <hr />
+
+  <button (click)="toggleViajesPublicados()">
+    {{ mostrarViajes ? 'Ocultar viajes publicados' : 'Mostrar viajes publicados' }}
+  </button>
+
+  <!-- Lista de viajes publicados -->
+  <div *ngIf="mostrarViajes" class="lista-viajes">
+    <div *ngIf="viajesPublicados.length === 0">No hay viajes publicados.</div>
+
+    <ul>
+      <li *ngFor="let viaje of viajesPublicados" class="viaje-item">
+        <p><strong>Destino:</strong> {{ viaje.direccionDestino }}</p>
+        <p><strong>Pasajeros:</strong> {{ viaje.pasajerosIds?.length || 0 }}/{{ viaje.pasajeros }}</p>
+        <p><strong>Tipo de pago:</strong> {{ viaje.tipoPago }}</p>
+        <p><strong>Precio:</strong> ${{ viaje.precio }}</p>
+
+        <button (click)="unirseAViaje(viaje)">Unirse a este viaje</button>
+      </li>
+    </ul>
+  </div>
+
+  <div *ngIf="error" class="error-mensaje">
+    {{ error }}
   </div>
 </div>

@@ -10,7 +10,7 @@ export class AuthService {
   // Registro de usuario con datos adicionales
   async register(email: string, password: string, userData: any): Promise<UserCredential> {
     const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-    
+
     // Guardar datos adicionales en Firestore en la colección 'users', con el uid del usuario
     const userDocRef = doc(this.firestore, `users/${userCredential.user.uid}`);
     await setDoc(userDocRef, userData);

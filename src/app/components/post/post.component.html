@@ -46,7 +46,7 @@
   />
   <br />
 
-  <label for="pasajerosDisponibles">Número de pasajeros disponibles:</label>
+  <label for="pasajerosDisponibles">Pasajeros disponibles:</label>
   <input
     id="pasajerosDisponibles"
     type="number"
@@ -60,7 +60,6 @@
   <button type="submit" [disabled]="viajeForm.invalid">Publicar Viaje</button>
 </form>
 
-<!-- Mapa mostrando origen y destino -->
 <app-map
   [ubicacionActual]="coordsOrigen"
   [ubicacionDestino]="coordsDestino"
@@ -71,10 +70,13 @@
 <h3>Viajes publicados</h3>
 <ul>
   <li *ngFor="let viaje of viajesPublicados">
-    <strong>{{ viaje.direccionOrigen }}</strong> →
-    <strong>{{ viaje.direccionDestino }}</strong> |
-    Fecha: {{ viaje.fechaHora | date: 'short' }} |
-    Precio: {{ viaje.precio | currency: 'USD' }} |
-    Pasajeros: {{ viaje.pasajerosDisponibles }}
+    <strong>Origen:</strong> {{ viaje.direccionOrigen }}<br>
+    <strong>Destino:</strong> {{ viaje.direccionDestino }}<br>
+    <strong>Fecha:</strong> {{ viaje.fechaHora | date: 'fullDate' }}<br>
+    <strong>Hora:</strong> {{ viaje.fechaHora | date: 'shortTime' }}<br>
+    <strong>Precio:</strong> {{ viaje.precio | currency: 'USD' }}<br>
+    <strong>Asientos disponibles:</strong> {{ viaje.pasajerosDisponibles }}<br>
+    <hr>
   </li>
 </ul>
+
