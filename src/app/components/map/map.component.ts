@@ -1,45 +1,77 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import * as L from 'leaflet';
+import 'leaflet-routing-machine'; // Importa el plugin sin tipos oficiales
 
 @Component({
   selector: 'app-map',
-  template: `<div id="map" style="height: 100%; width: 100%;"></div>`,
+  template: `<div id="map" style="height: 400px; width: 100%;"></div>`,
 })
-export class MapComponent implements OnInit {
+export class MapComponent implements OnChanges {
   private map!: L.Map;
+  private markers: L.Marker[] = [];
+  private routeControl: any = null;
 
-  ngOnInit(): void {
-    this.map = L.map('map').setView([0, 0], 2); // Vista inicial global
+  @Input() ubicacionActual: { latitude: number; longitude: number } | null = null;
+  @Input() ubicacionDestino: { latitude: number; longitude: number } | null = null;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.map) {
+      this.initMap();
+    }
+
+    if (changes['ubicacionActual'] || changes['ubicacionDestino']) {
+      this.updateRoute();
+    }
+  }
+
+  private initMap(): void {
+    this.map = L.map('map').setView([0, 0], 2);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-
-    this.locateUser();
   }
 
-  locateUser() {
-    if (navigator.geolocation) {
-      console.log('Intentando obtener ubicación...');
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          console.log(`Ubicación obtenida: ${lat}, ${lng}`);
+  private updateRoute(): void {
+    // Elimina ruta previa si existe
+    if (this.routeControl) {
+      this.map.removeControl(this.routeControl);
+      this.routeControl = null;
+    }
 
-          this.map.setView([lat, lng], 13);
+    // Elimina marcadores previos
+    this.markers.forEach(m => this.map.removeLayer(m));
+    this.markers = [];
 
-          const marker = L.marker([lat, lng]).addTo(this.map);
-          marker.bindPopup('Estás aquí').openPopup();
-        },
-        (error) => {
-          console.error('Error obteniendo la ubicación:', error);
-          alert('No se pudo obtener la ubicación. Por favor, revisa los permisos y que estés en HTTPS.');
-        }
-      );
+    if (this.ubicacionActual) {
+      const markerActual = L.marker([this.ubicacionActual.latitude, this.ubicacionActual.longitude]).addTo(this.map);
+      markerActual.bindPopup('Ubicación Actual').openPopup();
+      this.markers.push(markerActual);
+    }
+
+    if (this.ubicacionDestino) {
+      const markerDestino = L.marker([this.ubicacionDestino.latitude, this.ubicacionDestino.longitude]).addTo(this.map);
+      markerDestino.bindPopup('Destino').openPopup();
+      this.markers.push(markerDestino);
+    }
+
+    if (this.ubicacionActual && this.ubicacionDestino) {
+      this.routeControl = L.Routing.control({
+        waypoints: [
+          L.latLng(this.ubicacionActual.latitude, this.ubicacionActual.longitude),
+          L.latLng(this.ubicacionDestino.latitude, this.ubicacionDestino.longitude)
+        ],
+        routeWhileDragging: false,
+        show: false,
+        addWaypoints: false,
+        draggableWaypoints: false,
+        fitSelectedRoutes: true,
+        createMarker: () => null
+      }).addTo(this.map);
+    } else if (this.ubicacionActual) {
+      this.map.setView([this.ubicacionActual.latitude, this.ubicacionActual.longitude], 13);
     } else {
-      console.error('Geolocalización no soportada en este navegador.');
-      alert('Tu navegador no soporta geolocalización.');
+      this.map.setView([0, 0], 2);
     }
   }
 }
