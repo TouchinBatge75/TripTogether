@@ -3,87 +3,108 @@
   [ubicacionDestino]="ubicacionDestino"
 ></app-map>
 
-<div class="home-container">
+<div class="container">
+
+  <!-- Botón para mostrar/ocultar el formulario de publicación -->
   <button (click)="toggleFormulario()">
-    {{ mostrarFormulario ? 'Cancelar' : 'Publicar nuevo viaje' }}
+    {{ mostrarFormulario ? 'Cancelar' : 'Buscar Viaje Personalizado' }}
   </button>
 
   <!-- Formulario para publicar viaje -->
   <div *ngIf="mostrarFormulario" class="formulario-viaje">
-    <label>
-      Dirección destino:
-      <input
-        type="text"
-        [(ngModel)]="direccionDestino"
-        (input)="buscarSugerencias()"
-        (blur)="ocultarSugerencias()"
-        autocomplete="off"
-      />
-    </label>
+    <h3>Publicar nuevo viaje</h3>
 
-    <!-- Sugerencias de autocompletado -->
+    <!-- Dirección destino con sugerencias -->
+    <label for="direccionDestino">Destino:</label>
+    <input
+      id="direccionDestino"
+      type="text"
+      [(ngModel)]="direccionDestino"
+      (input)="buscarSugerencias()"
+      (blur)="ocultarSugerencias()"
+      autocomplete="off"
+      name="direccionDestino"
+    />
+    <!-- Sugerencias -->
     <ul *ngIf="mostrarSugerencias" class="sugerencias-lista">
-      <li
-        *ngFor="let sugerencia of sugerencias"
-        (mousedown)="seleccionarSugerencia(sugerencia)"
-      >
+      <li *ngFor="let sugerencia of sugerencias" (click)="seleccionarSugerencia(sugerencia)">
         {{ sugerencia.display_name }}
       </li>
     </ul>
 
-    <label>
-      Número de pasajeros:
-      <input
-        type="number"
-        [(ngModel)]="numeroPasajeros"
-        min="1"
-      />
-    </label>
+    <!-- Número de pasajeros -->
+    <label for="numeroPasajeros">Número de pasajeros:</label>
+    <input
+      id="numeroPasajeros"
+      type="number"
+      min="1"
+      [(ngModel)]="numeroPasajeros"
+      name="numeroPasajeros"
+    />
 
-    <label>
-      Tipo de pago:
-      <select [(ngModel)]="tipoPago">
-        <option value="efectivo">Efectivo</option>
-        <option value="tarjeta">Tarjeta</option>
-      </select>
-    </label>
+    <!-- Tipo de pago -->
+    <label>Tipo de pago:</label>
+    <select [(ngModel)]="tipoPago" name="tipoPago">
+      <option value="efectivo">Efectivo</option>
+      <option value="tarjeta">Tarjeta</option>
+    </select>
 
+    <!-- Botón para calcular precio -->
     <button (click)="calcularPrecio()">Calcular precio</button>
 
-    <div *ngIf="precio !== null" class="precio-calculado">
-      Precio estimado: ${{ precio }}
+    <!-- Mostrar precio calculado -->
+    <div *ngIf="precio !== null">
+      <strong>Precio estimado: </strong> ${{ precio }}
     </div>
 
-    <div *ngIf="error" class="error-mensaje">
+    <!-- Mostrar error si existe -->
+    <div *ngIf="error" class="error">
       {{ error }}
     </div>
 
-    <button (click)="publicarViaje()">Publicar viaje</button>
+    <!-- Botón para publicar viaje -->
+    <button (click)="publicarViaje()">Buscar viaje</button>
   </div>
 
-  <hr />
-
+  <!-- Botón para mostrar/ocultar viajes publicados -->
   <button (click)="toggleViajesPublicados()">
     {{ mostrarViajes ? 'Ocultar viajes publicados' : 'Mostrar viajes publicados' }}
   </button>
 
   <!-- Lista de viajes publicados -->
   <div *ngIf="mostrarViajes" class="lista-viajes">
-    <div *ngIf="viajesPublicados.length === 0">No hay viajes publicados.</div>
+    <h3>Viajes publicados</h3>
+    <div *ngIf="viajesPublicados.length === 0">
+      No hay viajes publicados.
+    </div>
 
     <ul>
       <li *ngFor="let viaje of viajesPublicados" class="viaje-item">
-        <p><strong>Destino:</strong> {{ viaje.direccionDestino }}</p>
-        <p><strong>Pasajeros:</strong> {{ viaje.pasajerosIds?.length || 0 }}/{{ viaje.pasajeros }}</p>
-        <p><strong>Tipo de pago:</strong> {{ viaje.tipoPago }}</p>
-        <p><strong>Precio:</strong> ${{ viaje.precio }}</p>
+        <div>
+          <strong>Destino:</strong> {{ viaje.direccionDestino }}<br />
+          <strong>Pasajeros:</strong> {{ viaje.pasajerosIds?.length || 0 }}/{{ viaje.pasajeros }}<br />
+          <strong>Pago:</strong> {{ viaje.tipoPago }}<br />
+          <strong>Precio:</strong> ${{ viaje.precio }}<br />
+          <small>Publicado por: {{ viaje.creadorId }}</small>
+        </div>
 
-        <button (click)="unirseAViaje(viaje)">Unirse a este viaje</button>
+        <button
+          (click)="unirseAViaje(viaje)"
+          [disabled]="
+            viaje.creadorId === userId ||
+            (viaje.pasajerosIds?.length || 0) >= viaje.pasajeros ||
+            viaje.pasajerosIds?.includes(userId)
+          "
+        >
+          Unirse al viaje
+        </button>
       </li>
     </ul>
   </div>
 
-  <div *ngIf="error" class="error-mensaje">
-    {{ error }}
+  <!-- Alerta proximidad -->
+  <div *ngIf="mostrarAlertaProximidad" class="alerta-proximidad">
+    ¡Atención! Hay viajes cercanos a tu ubicación.
   </div>
+
 </div>

@@ -1,0 +1,24 @@
+<div *ngIf="userData; else noUser" class="account-container">
+  <h2>Mi cuenta</h2>
+
+  <p><strong>Nombre:</strong> {{ userData?.name || 'No disponible' }}</p>
+  <p><strong>Apellido:</strong> {{ userData?.lastName || 'No disponible' }}</p>
+  <p><strong>Email:</strong> {{ userData?.email || 'No disponible' }}</p>
+  <p><strong>UID:</strong> {{ userData?.uid }}</p>
+
+  <hr>
+
+  <h3>Estadísticas</h3>
+  <p>Viajes realizados: {{ viajesRealizados }}</p>
+  <p>Saldo disponible: ${{ saldo.toFixed(2) }}</p>
+
+    <div class="button-group">
+        <button (click)="recargarSaldo()">Recargar Saldo</button>
+        <button (click)="cerrarSesion()">Cerrar Sesión</button>
+        <button (click)="borrarCuenta()" class="danger">Borrar Cuenta</button>
+      </div>
+</div>
+
+<ng-template #noUser>
+  <p class="no-user-message">Debes iniciar sesión para ver esta sección.</p>
+</ng-template>

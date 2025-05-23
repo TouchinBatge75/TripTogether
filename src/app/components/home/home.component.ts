@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';  
 import { MapComponent } from '../map/map.component';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -32,6 +32,7 @@ export class HomeComponent implements OnInit {
 
   viajesPublicados: any[] = [];
   userId: string = '';
+  mostrarAlertaProximidad: boolean = false;
 
   constructor(
     private viajeService: ViajeService,
@@ -44,7 +45,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Opcional: cargar viajes desde el inicio si se desea
+    // Opcional: cargar viajes al iniciar
     // this.cargarViajes();
   }
 
@@ -76,7 +77,8 @@ export class HomeComponent implements OnInit {
   cargarViajes(): void {
     this.viajeService.obtenerViajes().subscribe(
       viajes => {
-        this.viajesPublicados = viajes;
+        this.viajesPublicados = viajes || [];
+        this.verificarProximidad();
       },
       err => {
         console.error('Error al cargar viajes:', err);
@@ -107,7 +109,9 @@ export class HomeComponent implements OnInit {
       precio: this.precio,
       pasajerosIds: [this.userId],
       creado: new Date().toISOString(),
-      creadorId: this.userId
+      creadorId: this.userId,
+      latitudDestino: this.ubicacionDestino?.latitude || null,
+      longitudDestino: this.ubicacionDestino?.longitude || null,
     };
 
     try {
@@ -159,6 +163,7 @@ export class HomeComponent implements OnInit {
           latitude: pos.coords.latitude,
           longitude: pos.coords.longitude
         };
+        this.verificarProximidad();
       },
       err => {
         this.error = 'No se pudo obtener ubicación: ' + err.message;
@@ -179,14 +184,14 @@ export class HomeComponent implements OnInit {
     }
     this.ubicacionDestino = coords;
 
-    const d = this.calcularDistancia(this.ubicacionActual, coords);
-    const cargoDist = 2 * Math.pow(d, 1.2);
-    const cargoPas = 1 + (this.numeroPasajeros - 1) * 0.5;
-    let final = (30 + cargoDist) * cargoPas;
+    const distancia = this.calcularDistancia(this.ubicacionActual, coords);
+    const cargoDistancia = 2 * Math.pow(distancia, 1.2);
+    const cargoPasajeros = 1 + (this.numeroPasajeros - 1) * 0.5;
+    let precioFinal = (30 + cargoDistancia) * cargoPasajeros;
 
-    if (this.tipoPago === 'tarjeta') final *= 1.05;
+    if (this.tipoPago === 'tarjeta') precioFinal *= 1.05;
 
-    this.precio = Math.max(15, parseFloat(final.toFixed(2)));
+    this.precio = Math.max(15, parseFloat(precioFinal.toFixed(2)));
     this.error = null;
   }
 
@@ -202,10 +207,7 @@ export class HomeComponent implements OnInit {
 
     const aa =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.sin(dLon / 2) *
-        Math.sin(dLon / 2) *
-        Math.cos(lat1) *
-        Math.cos(lat2);
+      Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
     const c = 2 * Math.atan2(Math.sqrt(aa), Math.sqrt(1 - aa));
     return R * c;
   }
@@ -247,7 +249,7 @@ export class HomeComponent implements OnInit {
     )}&limit=5`;
     try {
       const results = await lastValueFrom(this.http.get<any[]>(url));
-      this.sugerencias = results;
+      this.sugerencias = results || [];
       this.mostrarSugerencias = this.sugerencias.length > 0;
     } catch (error) {
       console.error('Error buscando sugerencias:', error);
@@ -267,5 +269,34 @@ export class HomeComponent implements OnInit {
 
   ocultarSugerencias(): void {
     this.mostrarSugerencias = false;
+  }
+
+  verificarProximidad(): void {
+    if (!this.ubicacionActual || !this.viajesPublicados.length) {
+      this.mostrarAlertaProximidad = false;
+      return;
+    }
+
+    for (const viaje of this.viajesPublicados) {
+      if (
+        viaje.latitudDestino != null &&
+        viaje.longitudDestino != null &&
+        viaje.creadorId !== this.userId
+      ) {
+        const distancia = this.calcularDistancia(
+          this.ubicacionActual,
+          {
+            latitude: viaje.latitudDestino,
+            longitude: viaje.longitudDestino
+          }
+        );
+        if (distancia <= 1.5) {
+          this.mostrarAlertaProximidad = true;
+          return;
+        }
+      }
+    }
+
+    this.mostrarAlertaProximidad = false;
   }
 }
