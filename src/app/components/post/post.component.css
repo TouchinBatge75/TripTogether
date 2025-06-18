@@ -1,56 +1,161 @@
+/* Estilos generales */
+:host {
+  display: block;
+  max-width: 900px;
+  margin: 20px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* Título */
+h2 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #1a237e; /* azul oscuro */
+  letter-spacing: 1.2px;
+}
+
+/* Formulario */
 form {
-  max-width: 400px;
-  margin-bottom: 20px;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px 30px;
+  margin-bottom: 35px;
 }
 
-label {
-  display: inline-block;
-  width: 180px;
+form label {
   font-weight: 600;
-  margin-top: 10px;
+  margin-bottom: 6px;
+  display: block;
+  color: #555;
 }
 
-input {
-  width: 200px;
-  padding: 5px;
-  margin-top: 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  font-size: 1em;
+form input, form select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.8px solid #bbb;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
-button {
-  margin-top: 15px;
-  padding: 8px 16px;
-  background-color: #1976d2;
-  color: white;
+form input:focus, form select:focus {
+  outline: none;
+  border-color: #3949ab; /* azul más intenso */
+  box-shadow: 0 0 6px #3949abaa;
+}
+
+/* Botón Publicar */
+button.publish-btn {
+  grid-column: 1 / -1;
+  padding: 14px 0;
+  font-size: 1.15rem;
+  background-color: #3949ab;
+  color: #fff;
   border: none;
-  border-radius: 4px;
-  font-size: 1em;
+  border-radius: 10px;
   cursor: pointer;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
   transition: background-color 0.3s ease;
 }
 
-button:disabled {
-  background-color: #9e9e9e;
-  cursor: not-allowed;
+button.publish-btn:hover {
+  background-color: #283593;
 }
 
-button:hover:not(:disabled) {
-  background-color: #1565c0;
+/* Contenedor mapa */
+#map {
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  margin-bottom: 30px;
+  height: 400px;
+  width: 100%;
 }
 
-ul {
-  list-style-type: none;
-  padding-left: 0;
+/* Lista de viajes publicados */
+.published-trips {
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
 }
 
-li {
-  background-color: #f5f5f5;
-  margin-bottom: 8px;
-  padding: 8px 12px;
-  border-radius: 4px;
+.published-trips h3 {
+  margin-bottom: 15px;
+  color: #1a237e;
+}
+
+.trip-item {
+  background: #f5f6fa;
+  padding: 15px 20px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  box-shadow: inset 0 0 8px #c5cae9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.trip-details {
+  flex: 1;
+  font-size: 0.95rem;
+  color: #2c3e50;
+}
+
+.trip-actions button {
+  margin-left: 15px;
+  padding: 6px 14px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.25s ease;
+}
+
+.trip-actions button.view-passengers {
+  background-color: #64b5f6;
+  color: white;
+}
+
+.trip-actions button.view-passengers:hover {
+  background-color: #42a5f5;
+}
+
+.trip-actions button.cancel-trip {
+  background-color: #e57373;
+  color: white;
+}
+
+.trip-actions button.cancel-trip:hover {
+  background-color: #ef5350;
+}
+
+/* Responsive para móvil */
+@media (max-width: 600px) {
+  form {
+    grid-template-columns: 1fr;
+  }
+  button.publish-btn {
+    font-size: 1rem;
+  }
+  .trip-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .trip-actions {
+    margin-top: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+  }
+  .trip-actions button {
+    margin-left: 0;
+    margin-right: 12px;
+  }
 }

@@ -5,12 +5,12 @@
 
 <div class="container">
 
-  <!-- Botón para mostrar/ocultar el formulario de publicación -->
+  <!-- Botón para mostrar/ocultar el formulario -->
   <button (click)="toggleFormulario()">
     {{ mostrarFormulario ? 'Cancelar' : 'Buscar Viaje Personalizado' }}
   </button>
 
-  <!-- Formulario para publicar viaje -->
+  <!-- Formulario de publicación -->
   <div *ngIf="mostrarFormulario" class="formulario-viaje">
     <h3>Publicar nuevo viaje</h3>
 
@@ -25,9 +25,13 @@
       autocomplete="off"
       name="direccionDestino"
     />
-    <!-- Sugerencias -->
+
+    <!-- Lista de sugerencias -->
     <ul *ngIf="mostrarSugerencias" class="sugerencias-lista">
-      <li *ngFor="let sugerencia of sugerencias" (click)="seleccionarSugerencia(sugerencia)">
+      <li
+        *ngFor="let sugerencia of sugerencias"
+        (click)="seleccionarSugerencia(sugerencia)"
+      >
         {{ sugerencia.display_name }}
       </li>
     </ul>
@@ -43,7 +47,7 @@
     />
 
     <!-- Tipo de pago -->
-    <label>Tipo de pago:</label>
+    <label for="tipoPago">Tipo de pago:</label>
     <select [(ngModel)]="tipoPago" name="tipoPago">
       <option value="efectivo">Efectivo</option>
       <option value="tarjeta">Tarjeta</option>
@@ -52,21 +56,21 @@
     <!-- Botón para calcular precio -->
     <button (click)="calcularPrecio()">Calcular precio</button>
 
-    <!-- Mostrar precio calculado -->
-    <div *ngIf="precio !== null">
-      <strong>Precio estimado: </strong> ${{ precio }}
+    <!-- Precio estimado -->
+    <div *ngIf="precio !== null" class="precio">
+      <strong>Precio estimado:</strong> ${{ precio }}
     </div>
 
-    <!-- Mostrar error si existe -->
+    <!-- Mensaje de error -->
     <div *ngIf="error" class="error">
       {{ error }}
     </div>
 
-    <!-- Botón para publicar viaje -->
+    <!-- Botón para publicar -->
     <button (click)="publicarViaje()">Buscar viaje</button>
   </div>
 
-  <!-- Botón para mostrar/ocultar viajes publicados -->
+  <!-- Botón para mostrar/ocultar viajes -->
   <button (click)="toggleViajesPublicados()">
     {{ mostrarViajes ? 'Ocultar viajes publicados' : 'Mostrar viajes publicados' }}
   </button>
@@ -74,6 +78,7 @@
   <!-- Lista de viajes publicados -->
   <div *ngIf="mostrarViajes" class="lista-viajes">
     <h3>Viajes publicados</h3>
+
     <div *ngIf="viajesPublicados.length === 0">
       No hay viajes publicados.
     </div>
@@ -102,9 +107,8 @@
     </ul>
   </div>
 
-  <!-- Alerta proximidad -->
+  <!-- Alerta de proximidad -->
   <div *ngIf="mostrarAlertaProximidad" class="alerta-proximidad">
     ¡Atención! Hay viajes cercanos a tu ubicación.
   </div>
-
 </div>

@@ -1,82 +1,95 @@
-<h2>Publicar Viaje Compartido</h2>
+<div class="formulario-viaje">
+  <label>
+    Origen:
+    <input
+      type="text"
+      [(ngModel)]="direccionOrigen"
+      (input)="buscarSugerencias(direccionOrigen, 'origen')"
+      (blur)="ocultarSugerencias('origen')"
+      autocomplete="off"
+    />
+    <ul *ngIf="mostrarSugerenciasOrigen" class="sugerencias-lista">
+      <li
+        *ngFor="let sugerencia of sugerenciasOrigen"
+        (click)="seleccionarSugerencia(sugerencia, 'origen')"
+      >
+        {{ sugerencia.nombre }}
+      </li>
+    </ul>
+  </label>
 
-<form (ngSubmit)="publicarViaje()" #viajeForm="ngForm">
-  <label for="origen">Origen:</label>
-  <input
-    id="origen"
-    type="text"
-    [(ngModel)]="direccionOrigen"
-    name="direccionOrigen"
-    (input)="buscarCoordsOrigen()"
-    required
-    minlength="3"
-  />
-  <br />
+  <label>
+    Destino:
+    <input
+      type="text"
+      [(ngModel)]="direccionDestino"
+      (input)="buscarSugerencias(direccionDestino, 'destino')"
+      (blur)="ocultarSugerencias('destino')"
+      autocomplete="off"
+    />
+    <ul *ngIf="mostrarSugerenciasDestino" class="sugerencias-lista">
+      <li
+        *ngFor="let sugerencia of sugerenciasDestino"
+        (click)="seleccionarSugerencia(sugerencia, 'destino')"
+      >
+        {{ sugerencia.nombre }}
+      </li>
+    </ul>
+  </label>
 
-  <label for="destino">Destino:</label>
-  <input
-    id="destino"
-    type="text"
-    [(ngModel)]="direccionDestino"
-    name="direccionDestino"
-    (input)="buscarCoordsDestino()"
-    required
-    minlength="3"
-  />
-  <br />
+  <label>
+    Fecha:
+    <input type="date" [(ngModel)]="fecha" />
+  </label>
 
-  <label for="fechaHora">Fecha y hora:</label>
-  <input
-    id="fechaHora"
-    type="datetime-local"
-    [(ngModel)]="fechaHora"
-    name="fechaHora"
-    required
-  />
-  <br />
+  <label>
+    Pasajeros:
+    <input
+      type="number"
+      [(ngModel)]="pasajeros"
+      min="1"
+    />
+  </label>
 
-  <label for="precio">Precio por pasajero:</label>
-  <input
-    id="precio"
-    type="number"
-    [(ngModel)]="precio"
-    name="precio"
-    min="0"
-    required
-  />
-  <br />
+  <label>
+    Precio p/ Pasajero:
+    <input
+      type="number"
+      [(ngModel)]="precioPorPasajero"
+      min="0"
+      step="0.01"
+    />
+  </label>
 
-  <label for="pasajerosDisponibles">Pasajeros disponibles:</label>
-  <input
-    id="pasajerosDisponibles"
-    type="number"
-    [(ngModel)]="pasajerosDisponibles"
-    name="pasajerosDisponibles"
-    min="1"
-    required
-  />
-  <br />
+  <button (click)="publicarViaje()">Publicar Viaje</button>
+</div>
 
-  <button type="submit" [disabled]="viajeForm.invalid">Publicar Viaje</button>
-</form>
+<hr />
 
 <app-map
-  [ubicacionActual]="coordsOrigen"
-  [ubicacionDestino]="coordsDestino"
+  [ubicacionActual]="origen"
+  [ubicacionDestino]="destino"
 ></app-map>
 
 <hr />
 
-<h3>Viajes publicados</h3>
-<ul>
-  <li *ngFor="let viaje of viajesPublicados">
-    <strong>Origen:</strong> {{ viaje.direccionOrigen }}<br>
-    <strong>Destino:</strong> {{ viaje.direccionDestino }}<br>
-    <strong>Fecha:</strong> {{ viaje.fechaHora | date: 'fullDate' }}<br>
-    <strong>Hora:</strong> {{ viaje.fechaHora | date: 'shortTime' }}<br>
-    <strong>Precio:</strong> {{ viaje.precio | currency: 'USD' }}<br>
-    <strong>Asientos disponibles:</strong> {{ viaje.pasajerosDisponibles }}<br>
-    <hr>
-  </li>
-</ul>
+<div class="viajes-publicados">
+  <h3>Mis viajes publicados</h3>
 
+  <div *ngIf="viajesPublicados.length === 0">
+    No tienes viajes publicados.
+  </div>
+
+  <ul *ngIf="viajesPublicados.length > 0">
+    <li *ngFor="let viaje of viajesPublicados">
+      <strong>Origen:</strong> {{ viaje.origen }} |
+      <strong>Destino:</strong> {{ viaje.destino }} |
+      <strong>Fecha:</strong> {{ viaje.fecha }} |
+      <strong>Pasajeros:</strong> {{ viaje.pasajeros }} |
+      <strong>Precio:</strong> ${{ viaje.precioPorPasajero }}
+
+      <button (click)="verPasajeros(viaje)">Ver Pasajeros</button>
+      <button (click)="cancelarViaje(viaje.id)">Cancelar Viaje</button>
+    </li>
+  </ul>
+</div>

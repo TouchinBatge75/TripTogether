@@ -1,121 +1,170 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule, HttpClient } from '@angular/common/http';
 import { MapComponent } from '../map/map.component';
-import { ViajeService } from '../../services/travel.service';
-import { AuthService } from '../../services/auth.service';
 
 @Component({
-  selector: 'app-publicar-viaje',
+  selector: 'app-post',
   standalone: true,
-  imports: [CommonModule, FormsModule, MapComponent],
+  imports: [CommonModule, FormsModule, HttpClientModule, MapComponent],
   templateUrl: './post.component.html',
-  styleUrls: ['./post.component.css']
+  styleUrls: ['./post.component.css'],
 })
 export class PostComponent implements OnInit {
   direccionOrigen = '';
   direccionDestino = '';
-  fechaHora = '';
-  precio: number | null = null;
-  pasajerosDisponibles = 1;
 
-  coordsOrigen: { latitude: number; longitude: number } | null = null;
-  coordsDestino: { latitude: number; longitude: number } | null = null;
+  origen = { latitude: 0, longitude: 0 };
+  destino = { latitude: 0, longitude: 0 };
 
-  viajesPublicados: any[] = [];
+  fecha = '';
+  pasajeros = 1;
+  precioPorPasajero = 0;
 
-  constructor(
-    private viajeService: ViajeService,
-    private authService: AuthService
-  ) {}
+  sugerenciasOrigen: any[] = [];
+  mostrarSugerenciasOrigen = false;
 
-  ngOnInit() {
+  sugerenciasDestino: any[] = [];
+  mostrarSugerenciasDestino = false;
+
+  apiKey = 'pk.427a339cc31cd4d046d8149e1cc6a83a';
+
+  viajesPublicados: any[] = []; // Aquí cargarás los viajes publicados
+
+  constructor(private http: HttpClient) {}
+
+  ngOnInit(): void {
     this.cargarViajes();
   }
 
-  cargarViajes() {
-    this.viajeService.obtenerViajes().subscribe(viajes => {
-      this.viajesPublicados = viajes;
+  buscarSugerencias(query: string, tipo: 'origen' | 'destino') {
+    if (query.trim().length < 3) {
+      if (tipo === 'origen') {
+        this.sugerenciasOrigen = [];
+        this.mostrarSugerenciasOrigen = false;
+      } else {
+        this.sugerenciasDestino = [];
+        this.mostrarSugerenciasDestino = false;
+      }
+      return;
+    }
+
+    const url = `https://us1.locationiq.com/v1/search.php?key=${this.apiKey}&q=${encodeURIComponent(
+      query
+    )}&format=json&limit=5&addressdetails=1&accept-language=es`;
+
+    this.http.get<any[]>(url).subscribe({
+      next: (results) => {
+        const sugerencias = results.map((item) => {
+          const address = item.address || {};
+          let nombre =
+            address.road ||
+            address.neighbourhood ||
+            address.suburb ||
+            address.city ||
+            address.county ||
+            address.state ||
+            item.display_name;
+
+          return {
+            nombre,
+            lat: parseFloat(item.lat),
+            lon: parseFloat(item.lon),
+          };
+        });
+
+        if (tipo === 'origen') {
+          this.sugerenciasOrigen = sugerencias;
+          this.mostrarSugerenciasOrigen = sugerencias.length > 0;
+        } else {
+          this.sugerenciasDestino = sugerencias;
+          this.mostrarSugerenciasDestino = sugerencias.length > 0;
+        }
+      },
+      error: (error) => {
+        console.error('Error en LocationIQ API:', error);
+        if (tipo === 'origen') {
+          this.sugerenciasOrigen = [];
+          this.mostrarSugerenciasOrigen = false;
+        } else {
+          this.sugerenciasDestino = [];
+          this.mostrarSugerenciasDestino = false;
+        }
+      },
     });
   }
 
-  async buscarCoordsOrigen() {
-    this.coordsOrigen = await this.buscarCoordenadas(this.direccionOrigen);
-  }
-
-  async buscarCoordsDestino() {
-    this.coordsDestino = await this.buscarCoordenadas(this.direccionDestino);
-  }
-
-  private async buscarCoordenadas(direccion: string): Promise<{ latitude: number; longitude: number } | null> {
-    if (direccion.length < 3) return null;
-
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`;
-    try {
-      const response = await fetch(url, {
-        headers: {
-          'Accept-Language': 'es',
-          'User-Agent': 'TuApp/1.0 (contacto@tudominio.com)'
-        }
-      });
-      const data = await response.json();
-      if (!data.length) return null;
-      return {
-        latitude: parseFloat(data[0].lat),
-        longitude: parseFloat(data[0].lon)
-      };
-    } catch (error) {
-      console.error('Error buscando coordenadas:', error);
-      return null;
+  seleccionarSugerencia(sugerencia: any, tipo: 'origen' | 'destino') {
+    if (tipo === 'origen') {
+      this.direccionOrigen = sugerencia.nombre;
+      this.origen = { latitude: sugerencia.lat, longitude: sugerencia.lon };
+      this.mostrarSugerenciasOrigen = false;
+    } else {
+      this.direccionDestino = sugerencia.nombre;
+      this.destino = { latitude: sugerencia.lat, longitude: sugerencia.lon };
+      this.mostrarSugerenciasDestino = false;
     }
   }
 
-  async publicarViaje() {
-    if (!this.coordsOrigen || !this.coordsDestino) {
-      alert('Por favor, ingresa direcciones válidas.');
+  ocultarSugerencias(tipo: 'origen' | 'destino') {
+    setTimeout(() => {
+      if (tipo === 'origen') {
+        this.mostrarSugerenciasOrigen = false;
+      } else {
+        this.mostrarSugerenciasDestino = false;
+      }
+    }, 200);
+  }
+
+  publicarViaje() {
+    if (!this.direccionOrigen || !this.direccionDestino || !this.fecha || this.pasajeros < 1 || this.precioPorPasajero <= 0) {
+      alert('Por favor, completa todos los campos correctamente.');
       return;
     }
 
-    if (!this.fechaHora || this.precio == null || !this.pasajerosDisponibles) {
-      alert('Por favor, completa todos los campos.');
-      return;
-    }
-
-    const usuarioActual = this.authService.currentUser;
-    if (!usuarioActual) {
-      alert('Debes iniciar sesión para publicar un viaje.');
-      return;
-    }
-
-    const viaje = {
-      direccionOrigen: this.direccionOrigen,
-      direccionDestino: this.direccionDestino,
-      fechaHora: this.fechaHora,
-      precio: this.precio,
-      pasajerosDisponibles: this.pasajerosDisponibles,
-      coordsOrigen: this.coordsOrigen,
-      coordsDestino: this.coordsDestino,
-      usuarioId: usuarioActual.uid,
-      usuarioEmail: usuarioActual.email
+    const nuevoViaje = {
+      origen: this.direccionOrigen,
+      destino: this.direccionDestino,
+      origenCoords: this.origen,
+      destinoCoords: this.destino,
+      fecha: this.fecha,
+      pasajeros: this.pasajeros,
+      precioPorPasajero: this.precioPorPasajero,
+      pasajerosRegistrados: [], // Aquí almacenarás los usuarios que se unan
+      id: Date.now().toString(),
+      // Puedes agregar un campo usuarioId para el dueño del viaje, si tienes autenticación
     };
 
-    try {
-      await this.viajeService.publicarViaje(viaje, usuarioActual.uid);
-      alert('Viaje publicado con éxito!');
-      this.reiniciarFormulario();
-    } catch (error) {
-      console.error('Error al publicar viaje:', error);
-      alert('Hubo un error al publicar el viaje.');
-    }
-  }
+    // Aquí debes guardar en Firestore o Firebase, pero como ejemplo, lo agregamos localmente
+    this.viajesPublicados.push(nuevoViaje);
 
-  private reiniciarFormulario() {
+    // Limpia el formulario
     this.direccionOrigen = '';
     this.direccionDestino = '';
-    this.fechaHora = '';
-    this.precio = null;
-    this.pasajerosDisponibles = 1;
-    this.coordsOrigen = null;
-    this.coordsDestino = null;
+    this.origen = { latitude: 0, longitude: 0 };
+    this.destino = { latitude: 0, longitude: 0 };
+    this.fecha = '';
+    this.pasajeros = 1;
+    this.precioPorPasajero = 0;
+
+    alert('Viaje publicado correctamente.');
+  }
+
+  cargarViajes() {
+    // Aquí debes cargar los viajes desde Firestore/Firebase
+    // Por ahora, lo dejamos vacío o con datos de prueba
+    this.viajesPublicados = [];
+  }
+
+  verPasajeros(viaje: any) {
+    // Aquí muestras los pasajeros registrados en el viaje
+    alert(`Pasajeros inscritos: ${viaje.pasajerosRegistrados.length}`);
+  }
+
+  cancelarViaje(id: string) {
+    // Aquí cancelas el viaje (eliminar de la base o marcarlo cancelado)
+    this.viajesPublicados = this.viajesPublicados.filter(v => v.id !== id);
+    alert('Viaje cancelado');
   }
 }
